@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmLedger — ApiCare Organic Farms</title>
+  <meta name="description" content="Verified economic identity and credit infrastructure for smallholder farmers. ApiCare Organic Farms, Sikkim, India." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, system-ui, sans-serif; background: #f0f4f1; color: #1a2b20; }
+  :root { --green: #1A6B3A; --green-light: #EAF3DE; --blue: #1B4F8A; --amber: #E8A020; --bg: #F9FBF7; }
+  .app { display: flex; height: 100vh; min-height: 600px; overflow: hidden; }
+  .sidebar { width: 200px; flex-shrink: 0; background: #ffffff; border-right: 0.5px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+  .sidebar-logo { padding: 16px; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+  .sidebar-logo .name { font-size: 15px; font-weight: 500; color: #1A6B3A; }
+  .sidebar-logo .sub { font-size: 11px; color: #5a6a62; margin-top: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; font-size: 13px; color: #5a6a62; border-left: 2px solid transparent; transition: all 0.15s; }
+  .nav-item:hover { background: #f4f6f4; color: #1a2b20; }
+  .nav-item.active { background: #EAF3DE; color: #1A6B3A; border-left-color: #1A6B3A; font-weight: 500; }
+  .nav-icon { width: 16px; text-align: center; font-size: 14px; }
+  .main { flex: 1; overflow-y: auto; background: #f0f4f1; }
+  .topbar { background: #ffffff; border-bottom: 0.5px solid rgba(0,0,0,0.1); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-title { font-size: 15px; font-weight: 500; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: #EAF3DE; color: #1A6B3A; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-red { background: #FCEBEB; color: #A32D2D; }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  .badge-gray { background: #f4f6f4; color: #5a6a62; }
+  .content { padding: 20px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: #ffffff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: #5a6a62; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat-value { font-size: 22px; font-weight: 500; }
+  .stat-sub { font-size: 11px; color: #5a6a62; margin-top: 3px; }
+  .section-title { font-size: 13px; font-weight: 500; color: #5a6a62; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card { background: #ffffff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 500; color: #5a6a62; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+  .table td { padding: 10px 12px; border-bottom: 0.5px solid rgba(0,0,0,0.1); vertical-align: middle; }
+  .table tr:last-child td { border-bottom: none; }
+  .table tr:hover td { background: #f4f6f4; cursor: pointer; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; background: #EAF3DE; color: #1A6B3A; }
+  .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .score-bar { height: 6px; border-radius: 3px; flex: 1; background: #f4f6f4; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 3px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; border: 0.5px solid rgba(0,0,0,0.18); background: transparent; font-size: 13px; cursor: pointer; color: #1a2b20; transition: all 0.15s; }
+  .btn:hover { background: #f4f6f4; }
+  .btn-primary { background: #1A6B3A; color: white; border-color: #1A6B3A; }
+  .btn-primary:hover { background: #155a30; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.1); font-size: 13px; }
+  .field-row:last-child { border-bottom: none; }
+  .field-label { color: #5a6a62; }
+  .field-value { font-weight: 500; text-align: right; }
+  .credit-ring { position: relative; display: flex; flex-direction: column; align-items: center; padding: 16px 0; }
+  .credit-number { font-size: 32px; font-weight: 500; color: #1A6B3A; }
+  .credit-label { font-size: 12px; color: #5a6a62; }
+  .sim-wrap { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+  .sim-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #ECE5DD; border-radius: 8px; margin-bottom: 12px; }
+  .msg { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
+  .msg.farmer { align-self: flex-end; background: #DCF8C6; color: #1a1a1a; border-radius: 8px 0 8px 8px; }
+  .msg.agent { align-self: flex-start; background: white; color: #1a1a1a; border-radius: 0 8px 8px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .msg .meta { font-size: 10px; color: #888; margin-top: 3px; text-align: right; }
+  .sim-input-row { display: flex; gap: 8px; }
+  .sim-input { flex: 1; padding: 10px 14px; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 20px; font-size: 13px; background: #ffffff; color: #1a2b20; outline: none; }
+  .sim-input:focus { border-color: #1A6B3A; }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: #1A6B3A; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; flex-shrink: 0; }
+  .trace-card { max-width: 460px; margin: 0 auto; }
+  .trace-header { background: #1A6B3A; color: white; border-radius: 12px 12px 0 0; padding: 20px; text-align: center; }
+  .trace-header h2 { font-size: 18px; font-weight: 500; }
+  .trace-header p { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+  .trace-body { background: #ffffff; border: 0.5px solid rgba(0,0,0,0.1); border-top: none; border-radius: 0 0 12px 12px; padding: 20px; }
+  .qr-box { width: 80px; height: 80px; background: #f4f6f4; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #5a6a62; text-align: center; cursor: pointer; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; }
+  .loading-dot { display: inline-block; animation: blink 1s step-start infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .search-input { padding: 7px 12px; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 8px; font-size: 13px; background: #ffffff; color: #1a2b20; outline: none; width: 220px; }
+  .search-input:focus { border-color: #1A6B3A; }
+  .flex-row { display: flex; align-items: center; gap: 10px; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: #1A6B3A; color: white; padding: 10px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; }
+</style>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">FarmLedger</div>
+      <div class="sub">ApiCare Organic Farms</div>
+    </div>
+    <nav style="padding: 8px 0; flex: 1;">
+      <div class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">&#9632;</span> Dashboard</div>
+      <div class="nav-item" onclick="navigate('farmers')"><span class="nav-icon">&#128100;</span> Farmers</div>
+      <div class="nav-item" onclick="navigate('profile')"><span class="nav-icon">&#128203;</span> Farmer Profile</div>
+      <div class="nav-item" onclick="navigate('batches')"><span class="nav-icon">&#128230;</span> Batches</div>
+      <div class="nav-item" onclick="navigate('simulator')"><span class="nav-icon">&#128172;</span> WhatsApp Sim</div>
+      <div class="nav-item" onclick="navigate('trace')"><span class="nav-icon">&#128269;</span> Trace Card</div>
+    </nav>
+    <div style="padding: 12px 16px; border-top: 0.5px solid rgba(0,0,0,0.1);">
+      <div style="font-size: 11px; color: #5a6a62;">Logged in as</div>
+      <div style="font-size: 12px; font-weight: 500; margin-top: 2px;">admin</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="flex-row">
+        <span class="badge badge-green">&#x25cf; Live</span>
+        <span style="font-size: 12px; color: #5a6a62;">Prototype v1.0</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Farmers</div>
+            <div class="stat-value">5</div>
+            <div class="stat-sub">Sikkim registered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Batches</div>
+            <div class="stat-value">12</div>
+            <div class="stat-sub">4 certified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Credit Score</div>
+            <div class="stat-value" style="color: #1A6B3A;">612</div>
+            <div class="stat-sub">of 850 max</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending KYC</div>
+            <div class="stat-value" style="color: #E8A020;">2</div>
+            <div class="stat-sub">awaiting review</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="section-title">Recent Activity</div>
+            <div class="card" style="padding: 0;">
+              <table class="table">
+                <thead><tr><th>Farmer</th><th>Event</th><th>Time</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="avatar">DB</span></td><td>Batch logged — 18kg honey</td><td style="color: #5a6a62;">2h ago</td></tr>
+                  <tr><td><span class="avatar">KL</span></td><td>KYC verified</td><td style="color: #5a6a62;">5h ago</td></tr>
+                  <tr><td><span class="avatar">TB</span></td><td>Batch certified</td><td style="color: #5a6a62;">1d ago</td></tr>
+                  <tr><td><span class="avatar">DN</span></td><td>Registered via WhatsApp</td><td style="color: #5a6a62;">2d ago</td></tr>
+                  <tr><td><span class="avatar">MG</span></td><td>Credit score updated → 720</td><td style="color: #5a6a62;">3d ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Credit Distribution</div>
+            <div class="card">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;"><span>Prime (700–850)</span><span style="font-weight:500; color:#1A6B3A;">2 farmers</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 40%; background: #1A6B3A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;"><span>Developing (500–699)</span><span style="font-weight:500; color:#1B4F8A;">2 farmers</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 40%; background: #1B4F8A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;"><span>Building (300–499)</span><span style="font-weight:500; color:#E8A020;">1 farmer</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 20%; background: #E8A020;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;"><span>New / Unverified (0–299)</span><span style="font-weight:500; color: #5a6a62;">0 farmers</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 0%; background: #ccc;"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title" style="margin-top: 16px;">Lab Test Status</div>
+            <div class="card" style="padding: 12px 16px;">
+              <div style="display: flex; gap: 12px; justify-content: space-around; text-align: center;">
+                <div><div style="font-size: 22px; font-weight: 500; color: #1A6B3A;">7</div><div style="font-size: 11px; color: #5a6a62;">Pass</div></div>
+                <div><div style="font-size: 22px; font-weight: 500; color: #E8A020;">3</div><div style="font-size: 11px; color: #5a6a62;">Pending</div></div>
+                <div><div style="font-size: 22px; font-weight: 500; color: #A32D2D;">2</div><div style="font-size: 11px; color: #5a6a62;">Fail</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FARMERS -->
+      <div id="page-farmers" class="page">
+        <div class="flex-row" style="margin-bottom: 14px; justify-content: space-between;">
+          <input class="search-input" placeholder="Search farmers..." oninput="filterFarmers(this.value)" />
+          <button class="btn btn-primary" onclick="showToast('Add farmer via WhatsApp Simulator')">+ Add Farmer</button>
+        </div>
+        <div class="card" style="padding: 0;">
+          <table class="table" id="farmers-table">
+            <thead><tr><th>Farmer</th><th>Village</th><th>Farm Type</th><th>KYC</th><th>RAMP</th><th>Credit</th><th>Batches</th></tr></thead>
+            <tbody>
+              <tr onclick="navigate('profile')">
+                <td><div class="flex-row"><span class="avatar">DB</span><span style="margin-left: 8px;">Dal Bhadur Rai</span></div></td>
+                <td>Rumtek</td><td>Beekeeper</td>
+                <td><span class="badge badge-green">Verified</span></td>
+                <td><span class="badge badge-green">&#x2713;</span></td>
+                <td><span style="color: #1A6B3A; font-weight: 500;">780</span></td>
+                <td>4</td>
+              </tr>
+              <tr>
+                <td><div class="flex-row"><span class="avatar">KL</span><span style="margin-left: 8px;">Karma Lhamu Sherpa</span></div></td>
+                <td>Kewzing</td><td>Mixed</td>
+                <td><span class="badge badge-green">Verified</span></td>
+                <td><span class="badge badge-amber">Pending</span></td>
+                <td><span style="color: #1B4F8A; font-weight: 500;">610</span></td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td><div class="flex-row"><span class="avatar">TB</span><span style="margin-left: 8px;">Tshering Bhutia</span></div></td>
+                <td>Temi</td><td>Crop</td>
+                <td><span class="badge badge-green">Verified</span></td>
+                <td><span class="badge badge-green">&#x2713;</span></td>
+                <td><span style="color: #1B4F8A; font-weight: 500;">545</span></td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td><div class="flex-row"><span class="avatar">DN</span><span style="margin-left: 8px;">Dawa Namgyal</span></div></td>
+                <td>Samdong</td><td>Beekeeper</td>
+                <td><span class="badge badge-amber">Pending</span></td>
+                <td><span class="badge badge-gray">—</span></td>
+                <td><span style="color: #E8A020; font-weight: 500;">340</span></td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td><div class="flex-row"><span class="avatar">MG</span><span style="margin-left: 8px;">Maya Gurung</span></div></td>
+                <td>Ranka</td><td>Mixed</td>
+                <td><span class="badge badge-amber">Pending</span></td>
+                <td><span class="badge badge-amber">Pending</span></td>
+                <td><span style="color: #1A6B3A; font-weight: 500;">720</span></td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FARMER PROFILE -->
+      <div id="page-profile" class="page">
+        <div style="margin-bottom: 12px;">
+          <button class="btn" onclick="navigate('farmers')" style="font-size: 12px; padding: 4px 10px;">&#8592; Back to farmers</button>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="flex-row" style="margin-bottom: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; color: #1A6B3A;">DB</div>
+                <div>
+                  <div style="font-size: 15px; font-weight: 500;">Dal Bhadur Rai</div>
+                  <div style="font-size: 12px; color: #5a6a62;">+91 98000 00001 &middot; Rumtek, Sikkim</div>
+                </div>
+                <span class="badge badge-green" style="margin-left: auto;">Master Trainer</span>
+              </div>
+              <div class="field-row"><span class="field-label">Farm type</span><span class="field-value">Beekeeper</span></div>
+              <div class="field-row"><span class="field-label">Hive count</span><span class="field-value">24 hives</span></div>
+              <div class="field-row"><span class="field-label">RAMP status</span><span class="field-value"><span class="badge badge-green">Verified</span></span></div>
+              <div class="field-row"><span class="field-label">KYC status</span><span class="field-value"><span class="badge badge-green">Verified</span></span></div>
+              <div class="field-row"><span class="field-label">Joined</span><span class="field-value">Jan 2025</span></div>
+              <div class="field-row"><span class="field-label">Location</span><span class="field-value">27.3516° N, 88.6138° E</span></div>
+            </div>
+
+            <div class="section-title" style="margin-top: 16px;">Batches</div>
+            <div class="card" style="padding: 0;">
+              <table class="table">
+                <thead><tr><th>Batch Code</th><th>Product</th><th>Qty</th><th>Lab</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-family: JetBrains Mono, monospace; font-size: 12px;">SKM-2026-0001</td><td>Honey</td><td>22kg</td><td><span class="badge badge-green">Pass</span></td></tr>
+                  <tr><td style="font-family: JetBrains Mono, monospace; font-size: 12px;">SKM-2026-0002</td><td>Honey</td><td>18kg</td><td><span class="badge badge-green">Pass</span></td></tr>
+                  <tr><td style="font-family: JetBrains Mono, monospace; font-size: 12px;">SKM-2026-0008</td><td>Honey</td><td>14kg</td><td><span class="badge badge-amber">Pending</span></td></tr>
+                  <tr><td style="font-family: JetBrains Mono, monospace; font-size: 12px;">SKM-2026-0012</td><td>Honey</td><td>18kg</td><td><span class="badge badge-amber">Pending</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">Credit Score</div>
+            <div class="card">
+              <div class="credit-ring">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f4f6f4" stroke-width="10"/>
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1A6B3A" stroke-width="10"
+                    stroke-dasharray="314" stroke-dashoffset="69" stroke-linecap="round"
+                    transform="rotate(-90 60 60)"/>
+                  <text x="60" y="56" text-anchor="middle" font-size="24" font-weight="500" fill="#1A6B3A" font-family="sans-serif">780</text>
+                  <text x="60" y="72" text-anchor="middle" font-size="10" fill="#888" font-family="sans-serif">of 850</text>
+                </svg>
+                <span class="badge badge-green" style="font-size: 12px; padding: 4px 12px;">Prime Borrower</span>
+                <div style="font-size: 11px; color: #5a6a62; margin-top: 6px;">Eligible for loans up to ₹50,000</div>
+              </div>
+              <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;"><span>Batch volume</span><span>240/300</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 80%; background: #1A6B3A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;"><span>Total harvest kg</span><span>180/250</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 72%; background: #1A6B3A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;"><span>Lab pass rate</span><span>160/200</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 80%; background: #1B4F8A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;"><span>RAMP bonus</span><span>100/100</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 100%; background: #1A6B3A;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px;"><span>KYC + tenure</span><span>100/100</span></div>
+                  <div class="score-bar"><div class="score-bar-fill" style="width: 100%; background: #1A6B3A;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BATCHES -->
+      <div id="page-batches" class="page">
+        <div class="flex-row" style="margin-bottom: 14px; justify-content: space-between;">
+          <div class="flex-row">
+            <select style="padding: 7px 10px; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 8px; font-size: 13px; background: #ffffff; color: #1a2b20;">
+              <option>All products</option><option>Honey</option><option>Cardamom</option><option>Ginger</option>
+            </select>
+            <select style="padding: 7px 10px; border: 0.5px solid rgba(0,0,0,0.18); border-radius: 8px; font-size: 13px; background: #ffffff; color: #1a2b20;">
+              <option>All farmers</option><option>Dal Bhadur Rai</option><option>Karma Lhamu</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="showToast('Log a batch via the WhatsApp Simulator')">+ New Batch</button>
+        </div>
+        <div class="card" style="padding: 0;">
+          <table class="table">
+            <thead><tr><th>Batch Code</th><th>Farmer</th><th>Product</th><th>Harvest Date</th><th>Qty (kg)</th><th>Lab Status</th><th>QR</th></tr></thead>
+            <tbody id="batches-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WHATSAPP SIMULATOR -->
+      <div id="page-simulator" class="page">
+        <div class="two-col" style="align-items: start; height: calc(100vh - 120px);">
+          <div class="sim-wrap">
+            <div style="font-size: 12px; color: #5a6a62; margin-bottom: 8px;">Simulating farmer: <strong>+91 97001 23456</strong> (new farmer)</div>
+            <div class="sim-messages" id="sim-messages">
+              <div class="msg agent">
+                Welcome to FarmLedger! I'm your farm assistant. You can register your farm, log a harvest, or check your status. How can I help you today?
+                <div class="meta">FarmLedger &#x2713;&#x2713;</div>
+              </div>
+            </div>
+            <div class="sim-input-row">
+              <input class="sim-input" id="sim-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendSim()" />
+              <button class="send-btn" onclick="sendSim()">&#10148;</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Quick test messages</div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <button class="btn" style="justify-content: flex-start; text-align: left;" onclick="fillSim('Hello I want to register my honey farm')">Hello I want to register my honey farm</button>
+              <button class="btn" style="justify-content: flex-start;" onclick="fillSim('I harvested 12kg of honey today from 6 hives')">I harvested 12kg of honey today from 6 hives</button>
+              <button class="btn" style="justify-content: flex-start;" onclick="fillSim('What is my credit score?')">What is my credit score?</button>
+              <button class="btn" style="justify-content: flex-start;" onclick="fillSim('Show me my last 3 batches')">Show me my last 3 batches</button>
+              <button class="btn" style="justify-content: flex-start;" onclick="fillSim('Mero naam Dal Bhadur Rai ho')">Mero naam Dal Bhadur Rai ho (Nepali)</button>
+            </div>
+            <div class="section-title" style="margin-top: 16px;">Agent activity log</div>
+            <div id="agent-log" style="font-size: 11px; font-family: JetBrains Mono, monospace; color: #5a6a62; line-height: 1.8;">
+              Ready.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRACE CARD -->
+      <div id="page-trace" class="page">
+        <div style="font-size: 12px; color: #5a6a62; margin-bottom: 12px;">Public page — no login required. Scan a QR code on a product to see this.</div>
+        <div class="trace-card">
+          <div class="trace-header">
+            <div style="font-size: 11px; letter-spacing: 0.1em; opacity: 0.75; margin-bottom: 4px;">FARMLEDGER VERIFIED</div>
+            <h2>SKM-2026-0001</h2>
+            <p>Organic Wild Honey &middot; Sikkim, India</p>
+          </div>
+          <div class="trace-body">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div>
+                <div style="font-size: 11px; color: #5a6a62; margin-bottom: 2px;">Lab test</div>
+                <span class="badge badge-green" style="font-size: 12px;">&#x2713; Pass</span>
+              </div>
+              <div>
+                <div style="font-size: 11px; color: #5a6a62; margin-bottom: 2px;">RAMP verified</div>
+                <span class="badge badge-green" style="font-size: 12px;">&#x2713; World Bank</span>
+              </div>
+              <div class="qr-box" onclick="navigate('trace')">
+                <div>QR<br/>code</div>
+              </div>
+            </div>
+            <div class="field-row"><span class="field-label">Farmer</span><span class="field-value">Dal Bhadur Rai</span></div>
+            <div class="field-row"><span class="field-label">Village</span><span class="field-value">Rumtek, East Sikkim</span></div>
+            <div class="field-row"><span class="field-label">Harvest date</span><span class="field-value">March 14, 2026</span></div>
+            <div class="field-row"><span class="field-label">Quantity</span><span class="field-value">22 kg</span></div>
+            <div class="field-row"><span class="field-label">Moisture</span><span class="field-value">18.2%</span></div>
+            <div class="field-row"><span class="field-label">Eurofins ref</span><span class="field-value" style="font-family: JetBrains Mono, monospace; font-size: 12px;">EUR-2026-SK-0421</span></div>
+            <div style="margin-top: 14px; padding-top: 12px; border-top: 0.5px solid rgba(0,0,0,0.1); font-size: 11px; color: #5a6a62; text-align: center;">
+              Verified by ApiCare Organic Farms &middot; FarmLedger ID: a4f2c891
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BATCH_DATA = [
+  { code: 'SKM-2026-0001', farmer: 'Dal Bhadur Rai', product: 'Honey', date: '2026-03-14', qty: 22, lab: 'pass' },
+  { code: 'SKM-2026-0002', farmer: 'Dal Bhadur Rai', product: 'Honey', date: '2026-02-28', qty: 18, lab: 'pass' },
+  { code: 'SKM-2026-0003', farmer: 'Karma Lhamu Sherpa', product: 'Honey', date: '2026-03-10', qty: 15, lab: 'pending' },
+  { code: 'SKM-2026-0004', farmer: 'Karma Lhamu Sherpa', product: 'Cardamom', date: '2026-01-20', qty: 8, lab: 'pass' },
+  { code: 'SKM-2026-0005', farmer: 'Tshering Bhutia', product: 'Ginger', date: '2026-02-05', qty: 30, lab: 'pass' },
+  { code: 'SKM-2026-0006', farmer: 'Tshering Bhutia', product: 'Turmeric', date: '2026-01-15', qty: 12, lab: 'fail' },
+  { code: 'SKM-2026-0007', farmer: 'Dawa Namgyal', product: 'Honey', date: '2026-03-01', qty: 9, lab: 'pending' },
+  { code: 'SKM-2026-0008', farmer: 'Dal Bhadur Rai', product: 'Honey', date: '2026-03-22', qty: 14, lab: 'pending' },
+  { code: 'SKM-2026-0009', farmer: 'Maya Gurung', product: 'Cardamom', date: '2026-02-18', qty: 20, lab: 'pass' },
+  { code: 'SKM-2026-0010', farmer: 'Karma Lhamu Sherpa', product: 'Ginger', date: '2026-03-05', qty: 18, lab: 'fail' },
+  { code: 'SKM-2026-0011', farmer: 'Dawa Namgyal', product: 'Honey', date: '2026-01-28', qty: 7, lab: 'pass' },
+  { code: 'SKM-2026-0012', farmer: 'Dal Bhadur Rai', product: 'Honey', date: '2026-04-01', qty: 18, lab: 'pending' },
+];
+
+function renderBatches() {
+  const tbody = document.getElementById('batches-tbody');
+  tbody.innerHTML = BATCH_DATA.map(b => {
+    const labBadge = b.lab === 'pass' ? '<span class="badge badge-green">Pass</span>' :
+                     b.lab === 'fail' ? '<span class="badge badge-red">Fail</span>' :
+                     '<span class="badge badge-amber">Pending</span>';
+    const initials = b.farmer.split(' ').map(w => w[0]).join('').slice(0,2);
+    return `<tr onclick="navigate('trace')">
+      <td style="font-family: JetBrains Mono, monospace; font-size: 12px;">${b.code}</td>
+      <td><div class="flex-row"><span class="avatar">${initials}</span><span style="margin-left:8px;font-size:12px;">${b.farmer}</span></div></td>
+      <td>${b.product}</td>
+      <td style="color: #5a6a62; font-size: 12px;">${b.date}</td>
+      <td>${b.qty}</td>
+      <td>${labBadge}</td>
+      <td><button class="btn" style="padding: 3px 8px; font-size: 11px;" onclick="event.stopPropagation();navigate('trace')">QR &#x1F50D;</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const titles = { dashboard: 'Dashboard', farmers: 'Farmers', profile: 'Farmer Profile — Dal Bhadur Rai', batches: 'Batches', simulator: 'WhatsApp Simulator', trace: 'Trace Card' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  const navMap = { dashboard: 0, farmers: 1, profile: 2, batches: 3, simulator: 4, trace: 5 };
+  document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
+  if (page === 'batches') renderBatches();
+}
+
+function filterFarmers(q) {
+  const rows = document.querySelectorAll('#farmers-table tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+const RESPONSES = {
+  register: {
+    keywords: ['register', 'sign up', 'join', 'new', 'farm'],
+    reply: "Great! I'd love to help you register. What is your full name?",
+    intent: 'register',
+    tool: 'register_farmer'
+  },
+  harvest: {
+    keywords: ['harvest', 'kg', 'honey', 'collect', 'gathered', 'hive'],
+    reply: (msg) => {
+      const kg = msg.match(/(\d+)\s*kg/i);
+      const hives = msg.match(/(\d+)\s*hive/i);
+      if (kg) return `Got it! I've recorded ${kg[1]}kg of honey${hives ? ' from ' + hives[1] + ' hives' : ''}. Batch code: SKM-2026-0013. Can you tell me the harvest date?`;
+      return "I'd be happy to log your harvest. How many kg did you collect?";
+    },
+    intent: 'log_batch',
+    tool: 'log_batch'
+  },
+  credit: {
+    keywords: ['credit', 'score', 'loan', 'borrow', 'eligible'],
+    reply: "Your current credit score is 780 out of 850 — Prime Borrower tier! You're eligible for loans up to ₹50,000. Your RAMP verification and consistent batch history are your strongest factors.",
+    intent: 'query_status',
+    tool: 'query_status'
+  },
+  batches: {
+    keywords: ['batch', 'last', 'history', 'previous', 'show'],
+    reply: "Your last 3 batches:\n1. SKM-2026-0012 — 18kg honey (Apr 1) — Lab: Pending\n2. SKM-2026-0008 — 14kg honey (Mar 22) — Lab: Pending\n3. SKM-2026-0002 — 18kg honey (Feb 28) — Lab: ✓ Pass",
+    intent: 'query_status',
+    tool: 'query_status'
+  },
+  nepali: {
+    keywords: ['mero', 'naam', 'ho', 'cha', 'ma'],
+    reply: "Namaste! Mero naam FarmLedger ho. Tapailaai swagat cha! Ke tapai register garna chahanu huncha? (Hello! Welcome to FarmLedger! Would you like to register?)",
+    intent: 'register',
+    tool: 'register_farmer'
+  }
+};
+
+async function sendSim() {
+  const input = document.getElementById('sim-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const msgs = document.getElementById('sim-messages');
+  const log = document.getElementById('agent-log');
+
+  const now = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  msgs.innerHTML += `<div class="msg farmer">${msg}<div class="meta">${now} &#x2713;&#x2713;</div></div>`;
+
+  const thinking = document.createElement('div');
+  thinking.className = 'msg agent';
+  thinking.innerHTML = `<span class="loading-dot">&#x2022;</span><span class="loading-dot">&#x2022;</span><span class="loading-dot">&#x2022;</span>`;
+  msgs.appendChild(thinking);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  log.textContent = `[${now}] Sending to Claude...\n→ Model: claude-sonnet-4-20250514\n→ Tools: register_farmer, log_batch, query_status, unknown_intent`;
+
+  try {
+    const systemPrompt = `You are FarmLedger Assistant, a helpful AI for smallholder beekeepers and farmers in Sikkim, India. You speak simply and warmly.
+
+Your job is to:
+1. Understand what the farmer wants (register, log harvest, check status).
+2. Extract required data fields through friendly conversation.
+3. Call the appropriate tool to save or retrieve data.
+4. Respond in the farmer's language if they use Hindi or Nepali.
+
+RULES: Never fabricate data. If unsure, ask. Keep replies under 3 sentences. When logging a batch, always confirm the batch code in format SKM-YYYY-NNNN.`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: msg }],
+        tools: [
+          { name: "register_farmer", description: "Register a new farmer. Use when farmer wants to sign up.", input_schema: { type: "object", properties: { full_name: { type: "string" }, village: { type: "string" }, hive_count: { type: "number" } }, required: [] } },
+          { name: "log_batch", description: "Log a harvest batch for a farmer.", input_schema: { type: "object", properties: { product_type: { type: "string" }, quantity_kg: { type: "number" }, harvest_date: { type: "string" }, moisture_pct: { type: "number" } }, required: ["product_type", "quantity_kg"] } },
+          { name: "query_status", description: "Query farmer's status, credit score, or batch history.", input_schema: { type: "object", properties: { query_type: { type: "string", enum: ["profile", "batches", "credit"] } }, required: ["query_type"] } },
+          { name: "unknown_intent", description: "Handle unclear messages.", input_schema: { type: "object", properties: { message: { type: "string" }, suggested_response: { type: "string" } }, required: ["message", "suggested_response"] } }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    thinking.remove();
+
+    let replyText = '';
+    let usedTool = null;
+    let toolInput = null;
+
+    for (const block of data.content) {
+      if (block.type === 'text') replyText += block.text;
+      if (block.type === 'tool_use') {
+        usedTool = block.name;
+        toolInput = block.input;
+        if (!replyText) {
+          if (usedTool === 'register_farmer') replyText = `Great! I'll help you register. ${toolInput.full_name ? 'Welcome, ' + toolInput.full_name + '!' : 'What is your full name?'}`;
+          else if (usedTool === 'log_batch') replyText = `Batch logged! ${toolInput.quantity_kg ? toolInput.quantity_kg + 'kg of ' + (toolInput.product_type || 'produce') + ' recorded.' : 'How many kg did you harvest?'} Batch code: SKM-2026-0013.`;
+          else if (usedTool === 'query_status') replyText = toolInput.query_type === 'credit' ? 'Your credit score is 780/850 — Prime Borrower. Eligible for loans up to ₹50,000.' : 'Here are your latest records from the FarmLedger.';
+          else replyText = toolInput?.suggested_response || "I didn't quite understand that. Could you rephrase?";
+        }
+      }
+    }
+
+    if (!replyText) replyText = "I'm here to help! You can register your farm, log a harvest, or check your status.";
+
+    const replyTime = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    msgs.innerHTML += `<div class="msg agent">${replyText.replace(/\n/g, '<br>')}<div class="meta">${replyTime}</div></div>`;
+
+    log.innerHTML = `[${replyTime}] Response received\n→ Tool called: ${usedTool || 'none (text only)'}\n→ Input: ${toolInput ? JSON.stringify(toolInput) : '—'}\n→ Stop reason: ${data.stop_reason || 'end_turn'}`;
+
+  } catch(e) {
+    thinking.remove();
+    const fallback = getFallbackReply(msg);
+    const t = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    msgs.innerHTML += `<div class="msg agent">${fallback.reply}<div class="meta">${t}</div></div>`;
+    log.innerHTML = `[${t}] API unavailable — using local fallback\n→ Intent: ${fallback.intent}\n→ Tool: ${fallback.tool}`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function getFallbackReply(msg) {
+  const lower = msg.toLowerCase();
+  for (const key in RESPONSES) {
+    const r = RESPONSES[key];
+    if (r.keywords.some(k => lower.includes(k))) {
+      return { reply: typeof r.reply === 'function' ? r.reply(msg) : r.reply, intent: r.intent, tool: r.tool };
+    }
+  }
+  return { reply: "I'm not sure I understood that. You can say things like 'I want to register', 'I harvested 10kg of honey', or 'What's my credit score?'", intent: 'unknown', tool: 'unknown_intent' };
+}
+
+function fillSim(text) {
+  document.getElementById('sim-input').value = text;
+  document.getElementById('sim-input').focus();
+}
+
+renderBatches();
+</script>
+</body></html>
